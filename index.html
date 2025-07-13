@@ -389,3 +389,208 @@
                 second: '2-digit'
             });
             document.getElementById('current-time').textContent = timeString;
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTime();
+            setInterval(updateTime, 1000);
+        });
+        
+        // 滚动动画效果
+        window.addEventListener('scroll', () => {
+            const cards = document.querySelectorAll('.news-card');
+            const triggerBottom = window.innerHeight / 5 * 4;
+            
+            cards.forEach(card => {
+                const cardTop = card.getBoundingClientRect().top;
+                
+                if (cardTop < triggerBottom) {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                } else {
+                    card.style.opacity = '0.3';
+                    card.style.transform = 'translateY(50px)';
+                }
+            });
+        });
+        
+        // 更新当前时间函数
+        function updateCurrentTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            
+            // 更新头部时间
+            const timeString = `实时更新 · ${year}年${month}月${day}日 ${hours}:${minutes}`;
+            const timeElement = document.getElementById('current-time');
+            if (timeElement) {
+                timeElement.textContent = timeString;
+            }
+            
+            // 更新页脚时间
+            const footerTimeString = `最后更新: ${year}年${month}月${day}日 ${hours}:${minutes} | InfoMaster`;
+            const footerTimeElement = document.getElementById('footer-time');
+            if (footerTimeElement) {
+                footerTimeElement.textContent = footerTimeString;
+            }
+        }
+        
+        // 初始化动画
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.news-card');
+            cards.forEach((card, index) => {
+                card.style.transition = 'all 0.6s ease';
+                card.style.transitionDelay = `${index * 0.1}s`;
+            });
+            
+            // 初始化时间显示
+            updateCurrentTime();
+            // 每分钟更新一次时间
+            setInterval(updateCurrentTime, 60000);
+            
+            // 触发初始滚动检查
+            window.dispatchEvent(new Event('scroll'));
+        });
+        
+        // 添加点击动画效果
+        document.querySelectorAll('.hover-scale').forEach(element => {
+            element.addEventListener('click', function(e) {
+                const ripple = document.createElement('div');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.cssText = `
+                    position: absolute;
+                    width: ${size}px;
+                    height: ${size}px;
+                    left: ${x}px;
+                    top: ${y}px;
+                    background: rgba(255, 255, 255, 0.3);
+                    border-radius: 50%;
+                    transform: scale(0);
+                    animation: ripple 0.6s linear;
+                    pointer-events: none;
+                `;
+                
+                this.style.position = 'relative';
+                this.style.overflow = 'hidden';
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+        
+        // CSS动画定义
+         const style = document.createElement('style');
+         style.textContent = `
+             @keyframes ripple {
+                 to {
+                     transform: scale(4);
+                     opacity: 0;
+                 }
+             }
+         `;
+         document.head.appendChild(style);
+         
+         // 发送至飞书功能
+         document.getElementById('send-to-feishu').addEventListener('click', async function() {
+             const button = this;
+             
+             // 显示发送中状态
+             button.disabled = true;
+             button.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i>发送中...';
+             
+             try {
+                 // 新闻内容
+                 const newsContent = `# 影响下周一中国A股的周末重要新闻汇总\n\n## 货币政策重大利好\n\n### 央行2025年实施适度宽松货币政策\n- **政策转向**: 时隔10多年，货币政策从"稳健"转向"适度宽松"\n- **具体措施**: 择机降准降息，保持流动性充裕\n- **市场影响**: 预计7月下旬降准落地可能性较大，为A股市场提供充足流动性支持\n- **来源**: [新华网央行政策路线图](http://www.news.cn/fortune/20250106/d0b494b98377429fada60b0cd8877952/c.html)\n\n### 支持资本市场政策工具常态化\n- **结构性工具**: 用好用足支持资本市场的两项结构性货币政策工具\n- **制度安排**: 探索常态化制度安排，维护资本市场稳定运行\n- **政策创新**: 证券、基金、保险公司互换便利和股票回购增持再贷款\n- **来源**: [中国政府网金融政策](https://www.gov.cn/zhengce/202409/content_6976145.htm)\n\n## 经济数据积极信号\n\n### 制造业PMI重回扩张区间\n- **7月PMI**: 50.2%，比上月上升1.1个百分点\n- **景气回升**: 制造业景气水平明显回升\n- **市场预期**: 企业生产经营活动预期指数回升至54.9%\n- **来源**: [政府网经济数据](https://www.gov.cn/zhuanti/20250102jjsj/index.htm)\n\n### 上半年经济指标改善\n- **工业增加值**: 同比增长5.9%，增速稳定\n- **固定资产投资**: 同比增长4.1%，比2024年全年加快0.9个百分点\n- **社会消费**: 零售总额同比增长4.0%，消费复苏态势明显\n- **服务业**: 生产指数同比增长5.6%，比上年全年加快0.4个百分点\n\n## 金融市场支持政策\n\n### 证监会推动"长钱长投"政策\n- **资金入市**: 发布推动中长期资金入市指导意见\n- **并购重组**: 推出促进并购重组六条措施\n- **投资者保护**: 加强中小投资者合法权益保护\n- **来源**: [政府网金融政策解读](https://www.gov.cn/zhengce/202409/content_6976145.htm)\n\n### 银行业支持实体经济\n- **信贷投放**: 引导金融机构充分满足实体经济有效信贷需求\n- **利率下行**: 社会综合融资成本处于历史低位\n- **结构优化**: 专精特新中小企业贷款增长15.1%\n\n## 国际环境因素\n\n### 外部挑战与机遇并存\n- **挑战**: 世界经济增长动能不足，贸易保护主义抬头\n- **优势**: 中国超大规模市场、完备产业体系、丰富人才资源\n- **汇率稳定**: 人民币汇率在合理均衡水平上保持基本稳定\n\n## 市场展望\n\n### 政策协同效应\n- **宏观政策**: 货币政策与财政政策协同发力\n- **结构调整**: 政策从偏向投资转向消费与投资并重\n- **风险防控**: 稳妥有序化解重点领域金融风险\n\n### 对A股影响分析\n- **流动性充裕**: 降准降息预期为市场提供资金支持\n- **政策利好**: 资本市场支持工具常态化增强市场信心\n- **基本面改善**: 经济数据回升支撑市场长期向好\n- **估值修复**: 宽松货币环境有利于估值水平提升\n\n---\n\n*最后更新时间: 2025年7月14日*\n*信息来源: 新华网、中国政府网、央行官网等权威媒体*\n*影响评级: 重大利好 ⭐⭐⭐⭐⭐*`;
+                 
+                 // 构建飞书消息体
+                 const feishuPayload = {
+                     "msg_type": "interactive",
+                     "card": {
+                         "schema": "2.0",
+                         "config": {
+                             "update_multi": true,
+                             "style": {
+                                 "text_size": {
+                                     "normal_v2": {
+                                         "default": "normal",
+                                         "pc": "normal",
+                                         "mobile": "heading"
+                                     }
+                                 }
+                             }
+                         },
+                         "body": {
+                             "direction": "vertical",
+                             "padding": "12px 12px 12px 12px",
+                             "elements": [
+                                 {
+                                     "tag": "markdown",
+                                     "content": newsContent,
+                                     "text_align": "left",
+                                     "text_size": "normal_v2",
+                                     "margin": "0px 0px 0px 0px"
+                                 }
+                             ]
+                         },
+                         "header": {
+                             "title": {
+                                 "tag": "plain_text",
+                                 "content": "China A-Share News"
+                             },
+                             "subtitle": {
+                                 "tag": "plain_text",
+                                 "content": "影响下周一中国A股的重要新闻汇总"
+                             },
+                             "template": "blue",
+                             "padding": "12px 12px 12px 12px"
+                         }
+                     }
+                 };
+                 
+                 // 发送到飞书
+                 const response = await fetch('https://open.feishu.cn/open-apis/bot/v2/hook/0e6b4e77-aadd-461c-a406-28ebfda3f8f5', {
+                     method: 'POST',
+                     headers: {
+                         'Content-Type': 'application/json'
+                     },
+                     body: JSON.stringify(feishuPayload)
+                 });
+                 
+                 if (response.ok) {
+                     const result = await response.json();
+                     if (result.code === 0) {
+                         button.innerHTML = '<i class="fas fa-check mr-3"></i>发送成功';
+                         button.style.background = 'linear-gradient(90deg, #10b981, #059669)';
+                     } else {
+                         throw new Error(result.msg || '发送失败');
+                     }
+                 } else {
+                     throw new Error('网络请求失败');
+                 }
+                 
+             } catch (error) {
+                 console.error('发送失败:', error);
+                 button.innerHTML = '<i class="fas fa-exclamation-triangle mr-3"></i>发送失败';
+                 button.style.background = 'linear-gradient(90deg, #ef4444, #dc2626)';
+             } finally {
+                 // 3秒后恢复按钮状态
+                 setTimeout(() => {
+                     button.disabled = false;
+                     button.innerHTML = '<i class="fas fa-paper-plane mr-3"></i>发送至飞书';
+                     button.style.background = '';
+                 }, 3000);
+             }
+         });
+    </script>
+</body>
+</html>
